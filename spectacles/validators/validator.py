@@ -1,9 +1,27 @@
-from typing import Optional, List
-from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional, List, Any
+from abc import ABC
 from spectacles.client import LookerClient
 from spectacles.lookml import Project, Model, Dimension
 from spectacles.select import is_selected
 from spectacles.exceptions import LookMlNotFound
+
+
+class Test:
+    ...
+
+
+@dataclass
+class LookMlTest(Test):
+    project_name: str
+    model_name: str
+    name: str
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, self.__class__):
+            return (self.model_name == other.model_name) and (self.name == other.name)
+        else:
+            return False
 
 
 class Validator(ABC):  # pragma: no cover
@@ -19,10 +37,6 @@ class Validator(ABC):  # pragma: no cover
     def __init__(self, client: LookerClient, project: str):
         self.client = client
         self.project = Project(project, models=[])
-
-    @abstractmethod
-    def validate(self):
-        raise NotImplementedError
 
     def build_project(
         self,
